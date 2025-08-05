@@ -143,18 +143,34 @@
                 </ScrollView>
             </Frame>
 
-            <!-- Roll Button -->
-            <Button x:Name="RollDiceBtn"
-                    Text="🎲 Roll 3D Dice with Physics! 🎲" 
-                    SemanticProperties.Hint="Rolls selected dice with realistic 3D physics"
-                    Clicked="OnRollDiceClicked"
-                    HorizontalOptions="Fill"
-                    FontSize="18"
-                    Padding="20"
-                    BackgroundColor="DarkBlue"
-                    TextColor="White"
-                    CornerRadius="10"
-                    Margin="0,10,0,20" />
+            <!-- Enhanced Roll Buttons -->
+            <VerticalStackLayout Spacing="15">
+                <!-- Regular Roll Button -->
+                <Button x:Name="RollDiceBtn"
+                        Text="🎲 Roll 3D Dice with Physics! 🎲" 
+                        SemanticProperties.Hint="Rolls selected dice with realistic 3D physics"
+                        Clicked="OnRollDiceClicked"
+                        HorizontalOptions="Fill"
+                        FontSize="18"
+                        Padding="20"
+                        BackgroundColor="DarkBlue"
+                        TextColor="White"
+                        CornerRadius="10" />
+
+                <!-- Full Screen Roll Button -->
+                <Button x:Name="FullScreenRollBtn"
+                        Text="🌟 FULL SCREEN EPIC ROLL! 🌟" 
+                        SemanticProperties.Hint="Rolls dice in immersive full-screen mode with enhanced graphics"
+                        Clicked="OnFullScreenRollClicked"
+                        HorizontalOptions="Fill"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        Padding="25"
+                        BackgroundColor="Purple"
+                        TextColor="White"
+                        CornerRadius="15"
+                        Margin="0,0,0,20" />
+            </VerticalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>

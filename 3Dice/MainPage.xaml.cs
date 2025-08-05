@@ -98,6 +98,21 @@ namespace _3Dice
             DiceResultLabel.Text = "🎲 Rolling 3D dice with physics... Watch them bounce!";
         }
 
+        private async void OnFullScreenRollClicked(object sender, EventArgs e)
+        {
+            var selectedDice = DiceTypes.Where(d => d.Count > 0).ToList();
+            
+            if (!selectedDice.Any())
+            {
+                await DisplayAlert("No Dice Selected", "Please select some dice before rolling!", "OK");
+                return;
+            }
+
+            // Launch full-screen immersive dice rolling experience
+            var fullScreenPage = new FullScreenDiceRollingPage(selectedDice);
+            await Navigation.PushAsync(fullScreenPage);
+        }
+
         private void OnDiceRolled(object? sender, DiceRolledEventArgs e)
         {
             // Process 3D dice results
