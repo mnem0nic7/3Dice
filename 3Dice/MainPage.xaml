@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="_3Dice.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="20,10"
+            Spacing="20">
+
+            <Label
+                Text="Multi-Dice Roller"
+                Style="{StaticResource Headline}"
+                SemanticProperties.HeadingLevel="Level1"
+                HorizontalOptions="Center"
+                Margin="0,10,0,20" />
+
+            <!-- Visual Dice Selection -->
+            <VerticalStackLayout Spacing="15">
+                <Label
+                    Text="Select Your Dice:"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center" />
+                
+                <!-- Dice Types Grid -->
+                <CollectionView x:Name="DiceTypesCollectionView" 
+                               BackgroundColor="Transparent"
+                               SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="2" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BackgroundColor="White" 
+                                   Padding="15" 
+                                   Margin="5"
+                                   CornerRadius="15"
+                                   HasShadow="True">
+                                <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                                    
+                                    <!-- Dice Name -->
+                                    <Label Text="{Binding Name}"
+                                           FontSize="24"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="Black" />
+                                    
+                                    <!-- Count Display -->
+                                    <Label Text="{Binding Count, StringFormat='Count: {0}'}"
+                                           FontSize="16"
+                                           HorizontalOptions="Center"
+                                           TextColor="Gray" />
+                                    
+                                    <!-- Count Controls -->
+                                    <StackLayout Orientation="Horizontal" 
+                                               HorizontalOptions="Center" 
+                                               Spacing="15">
+                                        <Button Text="-"
+                                                FontSize="20"
+                                                WidthRequest="50"
+                                                HeightRequest="50"
+                                                BackgroundColor="Red"
+                                                TextColor="White"
+                                                CornerRadius="25"
+                                                Clicked="OnDecreaseDiceClicked"
+                                                CommandParameter="{Binding}" />
+                                        
+                                        <Label Text="{Binding Count}"
+                                               FontSize="28"
+                                               FontAttributes="Bold"
+                                               VerticalOptions="Center"
+                                               WidthRequest="40"
+                                               HorizontalTextAlignment="Center"
+                                               TextColor="Black" />
+                                        
+                                        <Button Text="+"
+                                                FontSize="20"
+                                                WidthRequest="50"
+                                                HeightRequest="50"
+                                                BackgroundColor="Green"
+                                                TextColor="White"
+                                                CornerRadius="25"
+                                                Clicked="OnIncreaseDiceClicked"
+                                                CommandParameter="{Binding}" />
+                                    </StackLayout>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- Current Selection Summary -->
+            <Frame BackgroundColor="LightBlue" 
+                   Padding="15" 
+                   CornerRadius="10"
+                   IsVisible="{Binding HasDiceSelected}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Current Selection:"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="SelectionSummaryLabel"
+                           Text=""
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                    <Button Text="Clear All"
+                            x:Name="ClearAllBtn"
+                            BackgroundColor="Orange"
+                            TextColor="White"
+                            FontSize="14"
+                            Clicked="OnClearAllClicked"
+                            HorizontalOptions="Center"
+                            IsVisible="False" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Results Display -->
+            <Frame BackgroundColor="LightGray" 
+                   Padding="15" 
+                   CornerRadius="10">
+                <ScrollView MaximumHeightRequest="200">
+                    <Label x:Name="DiceResultLabel"
+                           Text="Select dice and roll!"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center"
+                           TextColor="Black" />
+                </ScrollView>
+            </Frame>
+
+            <!-- Roll Button -->
+            <Button x:Name="RollDiceBtn"
+                    Text="🎲 Roll All Dice 🎲" 
+                    SemanticProperties.Hint="Rolls all selected dice"
+                    Clicked="OnRollDiceClicked"
+                    HorizontalOptions="Fill"
+                    FontSize="20"
+                    Padding="20"
+                    BackgroundColor="DarkBlue"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Margin="0,10,0,20" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
