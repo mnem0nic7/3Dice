@@ -208,13 +208,13 @@ namespace _3Dice.Models
                 IsAntialias = true
             };
 
-            // Use modern SKFont.MeasureText instead of deprecated SKPaint.MeasureText
-            var textBounds = font.MeasureText(FinalValue.ToString());
+            // For simplicity, just use the font size for vertical centering
+            var fontSize = font.Size;
 
             canvas.DrawText(
                 FinalValue.ToString(),
                 Position.X,
-                Position.Y + textBounds.Height / 2,
+                Position.Y + fontSize / 3, // Simple vertical centering approximation
                 SKTextAlign.Center,
                 font,
                 paint
