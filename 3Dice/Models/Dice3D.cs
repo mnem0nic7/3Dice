@@ -64,7 +64,10 @@ namespace _3Dice.Models
             Position += Velocity * deltaTime;
             Rotation += AngularVelocity * deltaTime;
 
-            // Bounce off bounds
+            // Calculate table surface position (70% down the screen)
+            var tableSurface = boundsHeight * 0.7f;
+
+            // Bounce off side bounds
             if (Position.X - Size/2 <= 0 || Position.X + Size/2 >= boundsWidth)
             {
                 if (Position.X - Size/2 <= 0) Position.X = Size/2;
@@ -74,25 +77,41 @@ namespace _3Dice.Models
                 AngularVelocity.X *= Friction;
             }
 
-            if (Position.Y - Size/2 <= 0 || Position.Y + Size/2 >= boundsHeight)
+            // Table surface collision (this is where dice roll)
+            if (Position.Y + Size/2 >= tableSurface)
             {
-                if (Position.Y - Size/2 <= 0) Position.Y = Size/2;
-                if (Position.Y + Size/2 >= boundsHeight) Position.Y = boundsHeight - Size/2;
+                Position.Y = tableSurface - Size/2;
                 
-                Velocity.Y *= -Restitution;
-                AngularVelocity.Y *= Friction;
+                if (Velocity.Y > 0)
+                {
+                    Velocity.Y *= -Restitution;
+                    AngularVelocity.Y *= Friction;
+                }
             }
 
-            // Apply friction
-            Velocity *= Friction;
-            AngularVelocity *= Friction;
+            // Top boundary (prevent dice from going off-screen upward)
+            if (Position.Y - Size/2 <= 0)
+            {
+                Position.Y = Size/2;
+                if (Velocity.Y < 0)
+                {
+                    Velocity.Y *= -Restitution;
+                }
+            }
 
-            // Stop rolling when velocity is very low and enough time has passed
-            if (Velocity.Length < 50f && AngularVelocity.Length < 1f && _bounceTime > 2f)
+            // Apply friction (stronger when on table surface)
+            var frictionMultiplier = (Position.Y + Size/2 >= tableSurface - 5) ? 0.95f : 1.0f;
+            Velocity *= Friction * frictionMultiplier;
+            AngularVelocity *= Friction * frictionMultiplier;
+
+            // Stop rolling when velocity is very low and dice is on table surface
+            if (Velocity.Length < 50f && AngularVelocity.Length < 1f && 
+                _bounceTime > 2f && Position.Y + Size/2 >= tableSurface - 5)
             {
                 IsRolling = false;
                 Velocity = new Vector3D();
                 AngularVelocity = new Vector3D();
+                Position.Y = tableSurface - Size/2; // Ensure dice sits on table
                 
                 // Calculate final value based on rotation
                 FinalValue = CalculateFinalValue();

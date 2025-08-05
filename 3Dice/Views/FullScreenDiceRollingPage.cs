@@ -247,6 +247,9 @@ namespace _3Dice.Views
             // Draw dynamic background gradient
             DrawBackground(canvas, info);
 
+            // Draw the table surface
+            DrawTableSurface(canvas, info);
+
             // Draw particles (behind dice)
             foreach (var particle in _particles)
             {
@@ -272,50 +275,157 @@ namespace _3Dice.Views
 
         private void DrawBackground(SKCanvas canvas, SKImageInfo info)
         {
-            // Create a dynamic gradient background
+            // Create a room/casino background above the table
             var paint = new SKPaint();
             
             var colors = new SKColor[]
             {
-                SKColor.Parse("#0f0f23"),  // Dark blue
-                SKColor.Parse("#1a1a2e"),  // Darker blue
-                SKColor.Parse("#16213e")   // Deep blue
+                SKColor.Parse("#1a1a2e"),  // Dark blue top
+                SKColor.Parse("#16213e"),  // Medium blue
+                SKColor.Parse("#0f3460")   // Darker blue towards table
             };
 
-            var positions = new float[] { 0f, 0.5f, 1f };
+            var positions = new float[] { 0f, 0.6f, 1f };
 
             using var shader = SKShader.CreateLinearGradient(
                 new SKPoint(0, 0),
-                new SKPoint(info.Width, info.Height),
+                new SKPoint(0, info.Height * 0.7f), // Gradient only to table surface
                 colors,
                 positions,
                 SKShaderTileMode.Clamp);
 
             paint.Shader = shader;
-            canvas.DrawRect(info.Rect, paint);
+            canvas.DrawRect(new SKRect(0, 0, info.Width, info.Height * 0.7f), paint);
 
-            // Add some subtle texture
-            DrawStars(canvas, info);
+            // Add ambient lighting and casino atmosphere
+            DrawCasinoLighting(canvas, info);
         }
 
-        private void DrawStars(SKCanvas canvas, SKImageInfo info)
+        private void DrawCasinoLighting(SKCanvas canvas, SKImageInfo info)
         {
-            var paint = new SKPaint
+            // Soft overhead lighting effect
+            var lightPaint = new SKPaint
             {
-                Color = SKColors.White.WithAlpha(100),
+                Color = SKColor.Parse("#FFD700").WithAlpha(30), // Soft golden light
+                Style = SKPaintStyle.Fill,
+                IsAntialias = true,
+                MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 50f)
+            };
+
+            // Central light source above the table
+            var lightRadius = Math.Min(info.Width, info.Height * 0.7f) * 0.6f;
+            canvas.DrawCircle(info.Width / 2, info.Height * 0.2f, lightRadius, lightPaint);
+
+            // Subtle star pattern for ambiance (fewer, more subtle)
+            var starPaint = new SKPaint
+            {
+                Color = SKColors.White.WithAlpha(60),
                 Style = SKPaintStyle.Fill,
                 IsAntialias = true
             };
 
-            // Draw some random stars for ambiance
-            var starCount = 20;
+            var starCount = 15;
             for (int i = 0; i < starCount; i++)
             {
-                var x = (i * 137.5f) % info.Width; // Pseudo-random but consistent
-                var y = (i * 219.3f) % info.Height;
-                var size = 1f + (i % 3);
-                canvas.DrawCircle(x, y, size, paint);
+                var x = (i * 137.5f) % info.Width;
+                var y = (i * 219.3f) % (info.Height * 0.6f); // Only in background area
+                var size = 1f + (i % 2);
+                canvas.DrawCircle(x, y, size, starPaint);
             }
+        }
+
+        private void DrawTableSurface(SKCanvas canvas, SKImageInfo info)
+        {
+            var tableSurface = info.Height * 0.7f;
+            var tableHeight = info.Height - tableSurface;
+
+            // Table surface (felt-like texture)
+            var tableGradient = SKShader.CreateLinearGradient(
+                new SKPoint(0, tableSurface),
+                new SKPoint(0, info.Height),
+                new SKColor[] 
+                { 
+                    SKColor.Parse("#2d5016"), // Dark green felt
+                    SKColor.Parse("#1a3009")  // Darker green at bottom
+                },
+                null,
+                SKShaderTileMode.Clamp);
+
+            var tablePaint = new SKPaint
+            {
+                Shader = tableGradient,
+                Style = SKPaintStyle.Fill,
+                IsAntialias = true
+            };
+
+            canvas.DrawRect(new SKRect(0, tableSurface, info.Width, info.Height), tablePaint);
+
+            // Table edge highlight (gives depth)
+            var edgePaint = new SKPaint
+            {
+                Color = SKColor.Parse("#4a7c2a"), // Lighter green edge
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 3f,
+                IsAntialias = true
+            };
+
+            canvas.DrawLine(0, tableSurface, info.Width, tableSurface, edgePaint);
+
+            // Table texture (subtle felt pattern)
+            DrawFeltTexture(canvas, info, tableSurface);
+
+            // Optional: Table edges/rails
+            DrawTableRails(canvas, info, tableSurface);
+        }
+
+        private void DrawFeltTexture(SKCanvas canvas, SKImageInfo info, float tableSurface)
+        {
+            var texturePaint = new SKPaint
+            {
+                Color = SKColor.Parse("#2d5016").WithAlpha(50),
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 1f,
+                IsAntialias = true
+            };
+
+            // Create subtle felt texture with criss-cross pattern
+            for (int i = 0; i < info.Width; i += 20)
+            {
+                canvas.DrawLine(i, tableSurface, i, info.Height, texturePaint);
+            }
+
+            for (int j = (int)tableSurface; j < info.Height; j += 20)
+            {
+                canvas.DrawLine(0, j, info.Width, j, texturePaint);
+            }
+        }
+
+        private void DrawTableRails(SKCanvas canvas, SKImageInfo info, float tableSurface)
+        {
+            var railHeight = 15f;
+            
+            // Left rail
+            var leftRailGradient = SKShader.CreateLinearGradient(
+                new SKPoint(0, tableSurface - railHeight),
+                new SKPoint(railHeight, tableSurface),
+                new SKColor[] 
+                { 
+                    SKColor.Parse("#8B4513"), // Brown wood
+                    SKColor.Parse("#654321")  // Darker brown
+                },
+                null,
+                SKShaderTileMode.Clamp);
+
+            var railPaint = new SKPaint
+            {
+                Shader = leftRailGradient,
+                Style = SKPaintStyle.Fill,
+                IsAntialias = true
+            };
+
+            // Draw rails around the table
+            canvas.DrawRect(new SKRect(0, tableSurface - railHeight, railHeight, info.Height), railPaint);
+            canvas.DrawRect(new SKRect(info.Width - railHeight, tableSurface - railHeight, info.Width, info.Height), railPaint);
         }
 
         private void DrawRollingText(SKCanvas canvas, SKImageInfo info)

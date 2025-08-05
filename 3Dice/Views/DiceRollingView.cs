@@ -120,15 +120,11 @@ namespace _3Dice.Views
         private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
         {
             var canvas = e.Surface.Canvas;
+            var info = e.Info;
             canvas.Clear(SKColors.DarkGreen);
 
-            // Draw felt texture background
-            var bgPaint = new SKPaint
-            {
-                Color = SKColors.DarkGreen,
-                Style = SKPaintStyle.Fill
-            };
-            canvas.DrawRect(e.Info.Rect, bgPaint);
+            // Draw table surface with proper perspective
+            DrawTableSurface(canvas, info);
 
             // Draw dice
             foreach (var dice in _dice)
@@ -153,12 +149,72 @@ namespace _3Dice.Views
 
                 canvas.DrawText(
                     "Rolling...",
-                    e.Info.Width / 2,
+                    info.Width / 2,
                     30,
                     SKTextAlign.Center,
                     font,
                     paint
                 );
+            }
+        }
+
+        private void DrawTableSurface(SKCanvas canvas, SKImageInfo info)
+        {
+            // Calculate table surface position (70% down for consistency)
+            var tableSurface = info.Height * 0.7f;
+
+            // Background above table
+            var bgPaint = new SKPaint
+            {
+                Color = SKColor.Parse("#1a3009"), // Dark green background
+                Style = SKPaintStyle.Fill
+            };
+            canvas.DrawRect(new SKRect(0, 0, info.Width, tableSurface), bgPaint);
+
+            // Table surface (felt texture)
+            var tableGradient = SKShader.CreateLinearGradient(
+                new SKPoint(0, tableSurface),
+                new SKPoint(0, info.Height),
+                new SKColor[] 
+                { 
+                    SKColor.Parse("#2d5016"), // Felt green
+                    SKColor.Parse("#1a3009")  // Darker green
+                },
+                null,
+                SKShaderTileMode.Clamp);
+
+            var tablePaint = new SKPaint
+            {
+                Shader = tableGradient,
+                Style = SKPaintStyle.Fill,
+                IsAntialias = true
+            };
+
+            canvas.DrawRect(new SKRect(0, tableSurface, info.Width, info.Height), tablePaint);
+
+            // Table edge
+            var edgePaint = new SKPaint
+            {
+                Color = SKColor.Parse("#4a7c2a"),
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 2f,
+                IsAntialias = true
+            };
+
+            canvas.DrawLine(0, tableSurface, info.Width, tableSurface, edgePaint);
+
+            // Subtle texture
+            var texturePaint = new SKPaint
+            {
+                Color = SKColor.Parse("#2d5016").WithAlpha(30),
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 1f,
+                IsAntialias = true
+            };
+
+            for (int i = 0; i < info.Width; i += 15)
+            {
+                canvas.DrawLine(i, tableSurface, i, info.Height, texturePaint);
             }
         }
     }

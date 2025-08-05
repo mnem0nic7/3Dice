@@ -65,9 +65,11 @@ namespace _3Dice.Models
             Position += Velocity * deltaTime;
             Rotation += AngularVelocity * deltaTime;
 
-            // Boundary collision with sound-like effects
+            // Calculate table surface position (70% down the screen to create perspective)
+            var tableSurface = boundsHeight * 0.7f;
             var bounced = false;
             
+            // Side walls collision (invisible walls to keep dice on screen)
             if (Position.X - Size/2 <= 0 || Position.X + Size/2 >= boundsWidth)
             {
                 if (Position.X - Size/2 <= 0) Position.X = Size/2;
@@ -78,14 +80,28 @@ namespace _3Dice.Models
                 bounced = true;
             }
 
-            if (Position.Y - Size/2 <= 0 || Position.Y + Size/2 >= boundsHeight)
+            // Table surface collision (this is the rolling surface)
+            if (Position.Y + Size/2 >= tableSurface)
             {
-                if (Position.Y - Size/2 <= 0) Position.Y = Size/2;
-                if (Position.Y + Size/2 >= boundsHeight) Position.Y = boundsHeight - Size/2;
+                Position.Y = tableSurface - Size/2;
                 
-                Velocity.Y *= -Restitution;
-                AngularVelocity.Y *= Friction;
-                bounced = true;
+                // More realistic table bounce
+                if (Velocity.Y > 0)
+                {
+                    Velocity.Y *= -Restitution;
+                    AngularVelocity.Y *= Friction;
+                    bounced = true;
+                }
+            }
+
+            // Top boundary (prevent dice from going off-screen upward)
+            if (Position.Y - Size/2 <= 0)
+            {
+                Position.Y = Size/2;
+                if (Velocity.Y < 0)
+                {
+                    Velocity.Y *= -Restitution;
+                }
             }
 
             // Create glow effect on bounce
@@ -97,16 +113,19 @@ namespace _3Dice.Models
             // Decay glow
             _glowIntensity *= 0.95f;
 
-            // Apply friction
-            Velocity *= Friction;
-            AngularVelocity *= Friction;
+            // Apply friction (stronger on table surface)
+            var frictionMultiplier = (Position.Y + Size/2 >= tableSurface - 5) ? 0.95f : 1.0f;
+            Velocity *= Friction * frictionMultiplier;
+            AngularVelocity *= Friction * frictionMultiplier;
 
-            // Stop rolling with more precise conditions
-            if (Velocity.Length < 30f && AngularVelocity.Length < 0.5f && _bounceTime > 3f)
+            // Stop rolling when velocity is very low and dice is on table surface
+            if (Velocity.Length < 30f && AngularVelocity.Length < 0.5f && 
+                _bounceTime > 3f && Position.Y + Size/2 >= tableSurface - 5)
             {
                 IsRolling = false;
                 Velocity = new Vector3D();
                 AngularVelocity = new Vector3D();
+                Position.Y = tableSurface - Size/2; // Ensure dice sits perfectly on table
                 FinalValue = CalculateFinalValue();
                 _glowIntensity = 0.3f; // Final glow when settled
             }
@@ -139,23 +158,27 @@ namespace _3Dice.Models
 
         private void DrawShadow(SKCanvas canvas)
         {
-            var shadowOffset = 8f;
+            // Calculate shadow position based on table surface
+            var tableSurface = canvas.LocalClipBounds.Height * 0.7f;
+            var shadowY = tableSurface + 5; // Shadow slightly below table surface
+            var shadowOffset = Math.Max(2f, (tableSurface - Position.Y) * 0.1f); // Shadow size based on height
+            
             var shadowPaint = new SKPaint
             {
-                Color = SKColors.Black.WithAlpha((byte)(100 * Math.Max(0.3f, 1.0f - Position.Y / 500f))),
+                Color = SKColors.Black.WithAlpha((byte)(80 * Math.Max(0.2f, 1.0f - (tableSurface - Position.Y) / 200f))),
                 Style = SKPaintStyle.Fill,
                 IsAntialias = true,
-                MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, 4f)
+                MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, shadowOffset)
             };
 
             var shadowRect = new SKRect(
-                Position.X - Size/2 + shadowOffset,
-                Position.Y - Size/2 + shadowOffset,
+                Position.X - Size/2 - shadowOffset,
+                shadowY - shadowOffset,
                 Position.X + Size/2 + shadowOffset,
-                Position.Y + Size/2 + shadowOffset
+                shadowY + shadowOffset
             );
 
-            canvas.DrawRoundRect(shadowRect, Size * 0.1f, Size * 0.1f, shadowPaint);
+            canvas.DrawOval(shadowRect, shadowPaint);
         }
 
         private void DrawDice(SKCanvas canvas)
