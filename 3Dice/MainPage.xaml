@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:_3Dice.Views"
              x:Class="_3Dice.MainPage">
 
     <ScrollView>
@@ -9,11 +10,22 @@
             Spacing="20">
 
             <Label
-                Text="Multi-Dice Roller"
+                Text="3D Dice Roller"
                 Style="{StaticResource Headline}"
                 SemanticProperties.HeadingLevel="Level1"
                 HorizontalOptions="Center"
                 Margin="0,10,0,20" />
+
+            <!-- 3D Dice Rolling Area -->
+            <VerticalStackLayout Spacing="10">
+                <Label
+                    Text="🎲 Physics Dice Rolling:"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center" />
+                
+                <views:DiceRollingView x:Name="DiceRollingView" />
+            </VerticalStackLayout>
 
             <!-- Visual Dice Selection -->
             <VerticalStackLayout Spacing="15">
@@ -124,7 +136,7 @@
                    CornerRadius="10">
                 <ScrollView MaximumHeightRequest="200">
                     <Label x:Name="DiceResultLabel"
-                           Text="Select dice and roll!"
+                           Text="Select dice and roll to see realistic 3D physics!"
                            FontSize="16"
                            HorizontalTextAlignment="Center"
                            TextColor="Black" />
@@ -133,11 +145,11 @@
 
             <!-- Roll Button -->
             <Button x:Name="RollDiceBtn"
-                    Text="🎲 Roll All Dice 🎲" 
-                    SemanticProperties.Hint="Rolls all selected dice"
+                    Text="🎲 Roll 3D Dice with Physics! 🎲" 
+                    SemanticProperties.Hint="Rolls selected dice with realistic 3D physics"
                     Clicked="OnRollDiceClicked"
                     HorizontalOptions="Fill"
-                    FontSize="20"
+                    FontSize="18"
                     Padding="20"
                     BackgroundColor="DarkBlue"
                     TextColor="White"

@@ -2,6 +2,7 @@
 using Microsoft.Maui.Accessibility;
 using System.Collections.ObjectModel;
 using _3Dice.Models;
+using _3Dice.Views;
 
 namespace _3Dice
 {
@@ -15,6 +16,9 @@ namespace _3Dice
             InitializeComponent();
             InitializeDiceTypes();
             DiceTypesCollectionView.ItemsSource = DiceTypes;
+            
+            // Subscribe to 3D dice roll events
+            DiceRollingView.DiceRolled += OnDiceRolled;
         }
 
         private void InitializeDiceTypes()
@@ -59,7 +63,7 @@ namespace _3Dice
                 diceType.Count = 0;
             }
             UpdateSummary();
-            DiceResultLabel.Text = "Select dice and roll!";
+            DiceResultLabel.Text = "Select dice and roll to see realistic 3D physics!";
         }
 
         private void UpdateSummary()
@@ -89,46 +93,54 @@ namespace _3Dice
                 return;
             }
 
+            // Start 3D dice rolling animation
+            DiceRollingView.RollDice(selectedDice);
+            DiceResultLabel.Text = "🎲 Rolling 3D dice with physics... Watch them bounce!";
+        }
+
+        private void OnDiceRolled(object? sender, DiceRolledEventArgs e)
+        {
+            // Process 3D dice results
             var allResults = new List<string>();
             int grandTotal = 0;
 
-            foreach (var diceType in selectedDice)
+            foreach (var group in e.Results)
             {
-                var groupResults = new List<int>();
-                for (int i = 0; i < diceType.Count; i++)
-                {
-                    groupResults.Add(random.Next(1, diceType.Sides + 1));
-                }
-
-                int groupTotal = groupResults.Sum();
+                var diceType = DiceTypes.First(d => d.Sides == group.Sides);
+                
+                int groupTotal = group.Values.Sum();
                 grandTotal += groupTotal;
 
                 string groupResult;
-                if (diceType.Count == 1)
+                if (group.Values.Count == 1)
                 {
-                    groupResult = $"{diceType.Name}: {groupResults[0]}";
+                    groupResult = $"{diceType.Name}: {group.Values[0]}";
                 }
                 else
                 {
-                    string individualRolls = string.Join(", ", groupResults);
-                    groupResult = $"{diceType.Name} ({diceType.Count}x): [{individualRolls}] = {groupTotal}";
+                    string individualRolls = string.Join(", ", group.Values);
+                    groupResult = $"{diceType.Name} ({group.Values.Count}x): [{individualRolls}] = {groupTotal}";
                 }
                 
                 allResults.Add(groupResult);
             }
 
             string finalResult;
-            if (selectedDice.Count == 1 && selectedDice[0].Count == 1)
+            if (e.Results.Count == 1 && e.Results[0].Values.Count == 1)
             {
-                finalResult = $"🎲 Result:\n{allResults[0]}";
+                finalResult = $"🎲 3D Physics Result:\n{allResults[0]}";
             }
             else
             {
-                finalResult = $"🎲 Results:\n{string.Join("\n", allResults)}\n\n🎯 Grand Total: {grandTotal}";
+                finalResult = $"🎲 3D Physics Results:\n{string.Join("\n", allResults)}\n\n🎯 Grand Total: {grandTotal}";
             }
 
-            DiceResultLabel.Text = finalResult;
-            SemanticScreenReader.Announce($"Rolled dice. Grand total: {grandTotal}");
+            // Update UI on main thread
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                DiceResultLabel.Text = finalResult;
+                SemanticScreenReader.Announce($"3D dice rolled. Grand total: {grandTotal}");
+            });
         }
     }
 }
