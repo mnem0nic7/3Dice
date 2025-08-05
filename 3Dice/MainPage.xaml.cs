@@ -35,7 +35,7 @@ namespace _3Dice
                 if (diceType.Count > 0)
                 {
                     diceType.Count--;
-                    UpdateUI();
+                    UpdateSummary();
                 }
             }
         }
@@ -47,7 +47,7 @@ namespace _3Dice
                 if (diceType.Count < 20) // Limit to 20 dice per type
                 {
                     diceType.Count++;
-                    UpdateUI();
+                    UpdateSummary();
                 }
             }
         }
@@ -58,21 +58,13 @@ namespace _3Dice
             {
                 diceType.Count = 0;
             }
-            UpdateUI();
+            UpdateSummary();
             DiceResultLabel.Text = "Select dice and roll!";
         }
 
-        private void UpdateUI()
+        private void UpdateSummary()
         {
-            // Force UI update by refreshing the collection view
-            var items = DiceTypes.ToList();
-            DiceTypes.Clear();
-            foreach (var item in items)
-            {
-                DiceTypes.Add(item);
-            }
-
-            // Update summary
+            // Update summary display
             var selectedDice = DiceTypes.Where(d => d.Count > 0).ToList();
             if (selectedDice.Any())
             {

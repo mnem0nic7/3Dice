@@ -94,8 +94,7 @@
             <!-- Current Selection Summary -->
             <Frame BackgroundColor="LightBlue" 
                    Padding="15" 
-                   CornerRadius="10"
-                   IsVisible="{Binding HasDiceSelected}">
+                   CornerRadius="10">
                 <VerticalStackLayout Spacing="10">
                     <Label Text="Current Selection:"
                            FontSize="16"
