@@ -5,7 +5,7 @@
 
     <ScrollView>
         <VerticalStackLayout
-            Padding="20,10"
+            Padding="15,10"
             Spacing="20">
 
             <Label
@@ -19,7 +19,7 @@
             <VerticalStackLayout Spacing="15">
                 <Label
                     Text="Select Your Dice:"
-                    FontSize="20"
+                    FontSize="18"
                     FontAttributes="Bold"
                     HorizontalOptions="Center" />
                 
@@ -33,54 +33,56 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Frame BackgroundColor="White" 
-                                   Padding="15" 
-                                   Margin="5"
-                                   CornerRadius="15"
+                                   Padding="10" 
+                                   Margin="3"
+                                   CornerRadius="12"
                                    HasShadow="True">
-                                <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                                <VerticalStackLayout Spacing="8" HorizontalOptions="Fill">
                                     
                                     <!-- Dice Name -->
                                     <Label Text="{Binding Name}"
-                                           FontSize="24"
+                                           FontSize="20"
                                            FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            TextColor="Black" />
                                     
                                     <!-- Count Display -->
                                     <Label Text="{Binding Count, StringFormat='Count: {0}'}"
-                                           FontSize="16"
+                                           FontSize="14"
                                            HorizontalOptions="Center"
                                            TextColor="Gray" />
                                     
                                     <!-- Count Controls -->
                                     <StackLayout Orientation="Horizontal" 
                                                HorizontalOptions="Center" 
-                                               Spacing="15">
+                                               Spacing="8">
                                         <Button Text="-"
-                                                FontSize="20"
-                                                WidthRequest="50"
-                                                HeightRequest="50"
+                                                FontSize="18"
+                                                WidthRequest="35"
+                                                HeightRequest="35"
                                                 BackgroundColor="Red"
                                                 TextColor="White"
-                                                CornerRadius="25"
+                                                CornerRadius="17"
+                                                Padding="0"
                                                 Clicked="OnDecreaseDiceClicked"
                                                 CommandParameter="{Binding}" />
                                         
                                         <Label Text="{Binding Count}"
-                                               FontSize="28"
+                                               FontSize="22"
                                                FontAttributes="Bold"
                                                VerticalOptions="Center"
-                                               WidthRequest="40"
+                                               WidthRequest="30"
                                                HorizontalTextAlignment="Center"
                                                TextColor="Black" />
                                         
                                         <Button Text="+"
-                                                FontSize="20"
-                                                WidthRequest="50"
-                                                HeightRequest="50"
+                                                FontSize="18"
+                                                WidthRequest="35"
+                                                HeightRequest="35"
                                                 BackgroundColor="Green"
                                                 TextColor="White"
-                                                CornerRadius="25"
+                                                CornerRadius="17"
+                                                Padding="0"
                                                 Clicked="OnIncreaseDiceClicked"
                                                 CommandParameter="{Binding}" />
                                     </StackLayout>
